@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}{{ document.title }} | DataNest{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div class="flex-grow-1">
+                <h2 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-file-alt me-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    {{ document.title }}
+                </h2>
+                <p class="text-muted mb-0 mt-2">
+                    <i class="fas fa-user me-1"></i>Uploaded by <strong>{{ document.uploaded_by.username }}</strong> on {{ document.created_at|date:"M d, Y, h:i a" }}
+                </p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'my_documents' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Documents
+                </a>
+                {% if document.status == 'DRAFT' or document.status == 'REJECTED' %}
+                    {% if document.uploaded_by == request.user or request.user.role == 'ADMIN' %}
+                        <a href="{% url 'edit_document' document.id %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Document Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-tag me-1"></i>Status:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <span class="status-badge status-{{ document.status }}">
+                                <i class="fas fa-{% if document.status == 'APPROVED' %}check{% elif document.status == 'REJECTED' %}times{% elif document.status == 'REVIEW' %}clock{% elif document.status == 'ARCHIVED' %}archive{% else %}edit{% endif %} me-1"></i>
+                                {{ document.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    {% if document.category %}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong><i class="fas fa-folder me-1"></i>Category:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ document.category.name }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if document.folder %}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong><i class="fas fa-folder-open me-1"></i>Folder:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ document.folder.name }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-file me-1"></i>File:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <a href="{{ document.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-download me-1"></i>Download File
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-calendar me-1"></i>Created:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ document.created_at|date:"F d, Y, h:i a" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-clock me-1"></i>Last Updated:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ document.updated_at|date:"F d, Y, h:i a" }}
+                        </div>
+                    </div>
+                    {% if document.submitted_for_review_at %}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong><i class="fas fa-paper-plane me-1"></i>Submitted for Review:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ document.submitted_for_review_at|date:"F d, Y, h:i a" }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if document.reviewed_by %}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong><i class="fas fa-user-check me-1"></i>Reviewed By:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ document.reviewed_by.username }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if document.reviewed_at %}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong><i class="fas fa-calendar-check me-1"></i>Reviewed On:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ document.reviewed_at|date:"F d, Y, h:i a" }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if document.review_comments %}
+                <div class="card mb-4 border-{% if document.status == 'APPROVED' %}success{% elif document.status == 'REJECTED' %}danger{% else %}warning{% endif %}">
+                    <div class="card-header bg-{% if document.status == 'APPROVED' %}success{% elif document.status == 'REJECTED' %}danger{% else %}warning{% endif %} text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-{% if document.status == 'APPROVED' %}check-circle{% elif document.status == 'REJECTED' %}times-circle{% else %}comment{% endif %} me-2"></i>
+                            Review Feedback
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-{% if document.status == 'APPROVED' %}success{% elif document.status == 'REJECTED' %}danger{% else %}warning{% endif %} mb-0">
+                            <p class="mb-2"><strong>Reviewer: {{ document.reviewed_by.username }}</strong></p>
+                            <p class="mb-2"><strong>Status: {{ document.get_status_display }}</strong></p>
+                            <hr>
+                            <p class="mb-0" style="white-space: pre-wrap;">{{ document.review_comments }}</p>
+                        </div>
+                        {% if document.status == 'REJECTED' %}
+                            <div class="mt-3">
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Your document has been rejected. Please review the feedback above and make necessary changes.
+                                </p>
+                                <a href="{% url 'edit_document' document.id %}" class="btn btn-warning">
+                                    <i class="fas fa-edit me-1"></i>Edit and Resubmit
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if document.status == 'DRAFT' or document.status == 'REJECTED' %}
+                            {% if document.uploaded_by == request.user or request.user.role == 'ADMIN' %}
+                                <a href="{% url 'submit_for_review' document.id %}" class="btn btn-success"
+                                   onclick="return confirm('Submit this document for review?');">
+                                    <i class="fas fa-paper-plane me-1"></i>Submit for Review
+                                </a>
+                                <a href="{% url 'edit_document' document.id %}" class="btn btn-warning">
+                                    <i class="fas fa-edit me-1"></i>Edit Document
+                                </a>
+                                <a href="{% url 'delete_document' document.id %}" class="btn btn-danger"
+                                   onclick="return confirm('Are you sure you want to delete this document?');">
+                                    <i class="fas fa-trash me-1"></i>Delete Document
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                        {% comment %} <a href="{% url 'document_versions' document.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-code-branch me-1"></i>View Versions
+                        </a> {% endcomment %}
+                        <a href="{{ document.file.url }}" target="_blank" class="btn btn-outline-info">
+                            <i class="fas fa-download me-1"></i>Download File
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if document.status == 'REVIEW' %}
+                <div class="card">
+                    <div class="card-header {% if assigned_task %}bg-success text-white{% else %}bg-warning text-dark{% endif %}">
+                        <h5 class="mb-0">
+                            <i class="fas fa-{% if assigned_task %}user-check{% else %}user-plus{% endif %} me-2"></i>
+                            {% if assigned_task %}Reviewer Assigned{% else %}Admin Actions{% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if assigned_task %}
+                            <div class="alert alert-success mb-0">
+                                <p class="mb-2"><strong><i class="fas fa-user-check me-1"></i>Assigned Reviewer:</strong></p>
+                                <h5 class="mb-2">{{ assigned_task.assigned_to.username }}</h5>
+                                <p class="mb-1 text-muted"><small>Role: {{ assigned_task.assigned_to.get_role_display }}</small></p>
+                                <p class="mb-0 text-muted"><small>Assigned on: {{ assigned_task.created_at|date:"M d, Y, h:i a" }}</small></p>
+                            </div>
+                        {% elif request.user.role == 'ADMIN' %}
+                            <a href="{% url 'assign_reviewer' document.id %}" class="btn btn-primary w-100">
+                                <i class="fas fa-user-check me-1"></i>Assign Reviewer
+                            </a>
+                        {% else %}
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Waiting for admin to assign a reviewer
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

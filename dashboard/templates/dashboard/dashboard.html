@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | DataNest{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="mb-0 d-flex align-items-center">
+                <i class="fas fa-tachometer-alt me-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                Dashboard
+            </h1>
+            <p class="text-muted mb-0 mt-2">Welcome back, {{ request.user.username }}! Here's your system overview.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <i class="fas fa-file-alt"></i>
+                <h3>{{ total_documents }}</h3>
+                <p>Total Documents</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <i class="fas fa-check-circle" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                <h3 style="color: #11998e;">{{ approved_documents }}</h3>
+                <p>Approved</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <i class="fas fa-times-circle" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                <h3 style="color: #eb3349;">{{ rejected_documents }}</h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <i class="fas fa-clock" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                <h3 style="color: #f5576c;">{{ pending_documents }}</h3>
+                <p>Pending Reviews</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Activities
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th><i class="fas fa-clock me-1"></i>Time</th>
+                                <th><i class="fas fa-user me-1"></i>User</th>
+                                <th><i class="fas fa-bolt me-1"></i>Action</th>
+                                <th><i class="fas fa-file me-1"></i>Document</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for activity in recent_activities %}
+                                <tr>
+                                    <td>{{ activity.timestamp|date:"M d, Y h:i A" }}</td>
+                                    <td><strong>{{ activity.user }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if activity.action == 'APPROVE' %}success{% elif activity.action == 'REJECT' %}danger{% elif activity.action == 'UPLOAD' %}primary{% else %}secondary{% endif %}">
+                                            {{ activity.action }}
+                                        </span>
+                                    </td>
+                                    <td>{{ activity.document|default:"N/A" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                        No recent activity
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

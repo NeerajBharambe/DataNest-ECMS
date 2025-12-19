@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Assign Reviewer | DataNest{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div class="flex-grow-1">
+                <h2 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-user-check me-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    Assign Reviewer
+                </h2>
+                <p class="text-muted mb-0 mt-2">Assign a reviewer to document: <strong>{{ document.title }}</strong></p>
+            </div>
+            <a href="{% url 'all_documents' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Document Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-md-4"><strong>Title:</strong></div>
+                        <div class="col-md-8">{{ document.title }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-4"><strong>Uploaded By:</strong></div>
+                        <div class="col-md-8">{{ document.uploaded_by.username }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-4"><strong>Status:</strong></div>
+                        <div class="col-md-8">
+                            <span class="status-badge status-{{ document.status }}">{{ document.get_status_display }}</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-4"><strong>Submitted:</strong></div>
+                        <div class="col-md-8">
+                            {% if document.submitted_for_review_at %}
+                                {{ document.submitted_for_review_at|date:"M d, Y, h:i a" }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Select Reviewer</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="reviewer_id" class="form-label">
+                                <i class="fas fa-user-check me-1"></i>Reviewer *
+                            </label>
+                            <select name="reviewer_id" id="reviewer_id" class="form-select" required>
+                                <option value="">Select a reviewer...</option>
+                                {% for reviewer in reviewers %}
+                                    <option value="{{ reviewer.id }}">
+                                        {{ reviewer.username }} ({{ reviewer.get_role_display }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Only users with Reviewer or Admin role can be assigned. The document owner cannot be assigned as reviewer.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="workflow_id" class="form-label">
+                                <i class="fas fa-project-diagram me-1"></i>Workflow (Optional)
+                            </label>
+                            <select name="workflow_id" id="workflow_id" class="form-select">
+                                <option value="">Create new workflow</option>
+                                {% for workflow in workflows %}
+                                    <option value="{{ workflow.id }}">{{ workflow.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">
+                                Leave empty to create a new workflow automatically
+                            </small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            <strong>Separation of Duties:</strong> The system will prevent assigning the document owner as a reviewer to maintain compliance.
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'all_documents' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-check me-1"></i>Assign Reviewer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

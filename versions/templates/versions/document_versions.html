@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Versions - {{ document.title }} | DataNest{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div class="flex-grow-1">
+                <h2 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-code-branch me-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    Document Versions
+                </h2>
+                <p class="text-muted mb-0 mt-2">{{ document.title }}</p>
+            </div>
+            <a href="{% url 'my_documents' %}" class="btn btn-outline-secondary flex-shrink-0">
+                <i class="fas fa-arrow-left me-2"></i>Back to Documents
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Version History ({{ versions.count }})
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag me-1"></i>Version</th>
+                        <th><i class="fas fa-file me-1"></i>File</th>
+                        <th><i class="fas fa-user me-1"></i>Created By</th>
+                        <th><i class="fas fa-calendar me-1"></i>Created At</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for version in versions %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-code-branch me-1"></i>v{{ version.version_number }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ version.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </a>
+                            </td>
+                            <td><strong>{{ version.created_by }}</strong></td>
+                            <td>{{ version.created_at|date:"M d, Y, h:i a" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3"></i><br>
+                                <h5>No versions found</h5>
+                                <p>This document doesn't have any version history yet.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+

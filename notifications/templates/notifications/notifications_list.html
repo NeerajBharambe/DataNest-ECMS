@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Notifications | DataNest{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div class="flex-grow-1">
+                <h2 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-bell me-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    Notifications
+                </h2>
+                <p class="text-muted mb-0 mt-2">Stay updated with all system activities</p>
+            </div>
+            <a href="{% url 'notifications_mark_all_read' %}" class="btn btn-outline-primary flex-shrink-0">
+                <i class="fas fa-check-double me-2"></i>Mark all as read
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>All Notifications ({{ notifications.count }})
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-envelope me-1"></i>Message</th>
+                        <th><i class="fas fa-file me-1"></i>Document</th>
+                        <th><i class="fas fa-tag me-1"></i>Type</th>
+                        <th><i class="fas fa-calendar me-1"></i>Created</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for notification in notifications %}
+                        <tr class="{% if not notification.is_read %}table-info{% endif %}">
+                            <td>
+                                {% if not notification.is_read %}
+                                    <i class="fas fa-circle text-primary me-2" style="font-size: 0.5rem;"></i>
+                                {% endif %}
+                                {{ notification.message }}
+                            </td>
+                            <td>
+                                {% if notification.document %}
+                                    <a href="{% url 'document_versions' notification.document.id %}" class="text-decoration-none">
+                                        <i class="fas fa-file-alt me-1"></i>{{ notification.document.title }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if notification.notification_type == 'TASK' %}primary{% else %}secondary{% endif %}">
+                                    <i class="fas fa-{% if notification.notification_type == 'TASK' %}tasks{% else %}file{% endif %} me-1"></i>
+                                    {{ notification.notification_type }}
+                                </span>
+                            </td>
+                            <td>{{ notification.created_at|date:"M d, Y, h:i a" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="fas fa-bell-slash fa-3x mb-3"></i><br>
+                                <h5>No notifications</h5>
+                                <p>You're all caught up! No new notifications at the moment.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+

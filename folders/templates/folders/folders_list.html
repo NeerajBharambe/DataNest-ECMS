@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Folders & Categories | DataNest{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h2 class="mb-0 d-flex align-items-center">
+                <i class="fas fa-folder me-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                Folders & Categories
+            </h2>
+            <p class="text-muted mb-0 mt-2">Organize your documents with folders and categories</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-folder-plus me-2"></i>Create Folder
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'create_folder' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-folder me-1"></i>Folder Name
+                            </label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter folder name..." required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Folder
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-folder-open me-2"></i>Folders ({{ folders.count }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for folder in folders %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-folder text-primary me-2"></i>
+                                    <strong>{{ folder.name }}</strong>
+                                </span>
+                                <small class="text-muted">{{ folder.created_at|date:"M d, Y" }}</small>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-center text-muted py-4">
+                                <i class="fas fa-folder-open fa-2x mb-2"></i><br>
+                                No folders created yet
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tag me-2"></i>Create Category
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'create_category' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-tag me-1"></i>Category Name
+                            </label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter category name..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Description (Optional)
+                            </label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Enter category description..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Category
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tags me-2"></i>Categories ({{ categories.count }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for category in categories %}
+                            <li class="list-group-item">
+                                <div>
+                                    <i class="fas fa-tag text-success me-2"></i>
+                                    <strong>{{ category.name }}</strong>
+                                    {% if category.description %}
+                                        <br><small class="text-muted ms-4">{{ category.description }}</small>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-center text-muted py-4">
+                                <i class="fas fa-tags fa-2x mb-2"></i><br>
+                                No categories available
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
