@@ -68,7 +68,7 @@ ________________________________________________________________________________
 ## ⚙️ Installation & Setup
 1️⃣ Clone the Repository
 
-    git clone https://github.com/your-username/DataNest-ECMS.git
+    git clone https://github.com/NeerajBharambe/DataNest-ECMS.git
 
     cd DataNest-ECMS
 
